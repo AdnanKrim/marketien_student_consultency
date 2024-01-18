@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Models\UserOtp;
+use Carbon\Carbon;
 
 use Illuminate\Http\Request;
 
@@ -79,26 +80,36 @@ class LeedController extends Controller
             ]);
         }
     }
-    public function otpVerify(Request $req){
-       $data = UserOtp::where('phoneNo',$req->phoneNo)->first();
-       if($data){
-        if($data->otp === $req->otp){
-            return response([
-             'message'=> 'otp verified successfully',
-             'status'=>'201'
-            ]);
-        }else{
-            return response([
-                'message'=> 'otp didnt match',
-                'status'=>'401'
-               ]);
-        }
-       }
-       return response([
-        'message'=> 'otp is not generated, number invalid',
-        'status'=>'403'
+    public function otpVerify(Request $req)
+    {
+        $data = UserOtp::where('phoneNo', $req->phoneNo)->first();
+        if ($data) {
+            if ($data->created_at > Carbon::now()->subMinutes(3)->toDateTimeString()) {
+                if ($data->otp === $req->otp) {
+                    return response([
+                        'message' => 'otp verified successfully',
+                        'status' => '201'
+                    ]);
+                } else {
+                    return response([
+                        'message' => 'otp didnt match',
+                        'status' => '401'
+                    ]);
+                }
+            } else {
+                return response([
+                    'message' => 'otp is expired',
+                    'status' => '403'
 
-    ]);
+                ]);
+            }
+        } else {
+            return response([
+                'message' => 'otp is not generated, invalid number',
+                'status' => '404'
+
+            ]);
+        }
     }
 
 
