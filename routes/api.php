@@ -26,6 +26,7 @@ Route::group(['middleware' => 'auth:sanctum'], function(){
 
 
 Route::post("login",[UserController::class,'index']);
-Route::post('student-reg',[LeedController::class,'studentLeedRegApi'])->name('student-reg');
+Route::post('save-leed',[LeedController::class,'SaveLeed'])->name('save-leed');
+Route::post('student-reg',[LeedController::class,'studentReg'])->name('student-reg');
 Route::post('otp-generate',[LeedController::class,'otpGenerate'])->name('otp-generate');
 Route::post('otp-verify',[LeedController::class,'otpVerify'])->name('otp-verify');

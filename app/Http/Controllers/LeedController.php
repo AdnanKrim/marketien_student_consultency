@@ -14,7 +14,7 @@ use Illuminate\Http\Request;
 
 class LeedController extends Controller
 {
-    public function initialSaveLeed(Request $req)
+    public function saveLeed(Request $req)
     {
         $validator = Validator::make($req->all(), [
             'email' => 'required|email|unique:leeds'
@@ -50,15 +50,36 @@ class LeedController extends Controller
                 return response([
                     'message' => 'Data is initially saved'
                 ]);
+            }else{
+                return response([
+                    'message' => 'something went wrong'
+                ]);
             }
         }
+    }
+    public function studentReg(Request $req){
+        $data = new User();
+        $data ->email = $req->email;
+        $data->password = Hash::make($req->password);
+        $data->role = '2';
+        $result = $data->save();
+        if($result){
+            return response([
+                'message'=> 'student successfully registered'
+            ]);
+        }else{
+            return response([
+                'message'=> 'something went wrong'
+            ]);
+        }
+        
     }
     public function otpGenerate(Request $req)
     {
         $user = UserOtp::where('phoneNo', $req->phoneNo)->first();
-        $leed = Leed::where('email', $req->email)->first();
-        $leed->phoneNo = $req->phoneNo;
-        $leed->save();
+        // $leed = Leed::where('email', $req->email)->first();
+        // $leed->phoneNo = $req->phoneNo;
+        // $leed->save();
         if ($user) {
 
             $user->delete();
@@ -68,7 +89,7 @@ class LeedController extends Controller
             'phoneNo' => $req->phoneNo
         ]);
         if ($data) {
-            $this->sms($data->phoneNo, $data->otp);
+            $this->sms_send($data->phoneNo, $data->otp);
             return response([
                 'message' => 'otp is sent in your mobile,please Check',
                 'status' => '201'
@@ -111,27 +132,49 @@ class LeedController extends Controller
             ]);
         }
     }
-
-
-
-
-
-
-
-    public function sms($phone, $otp)
-    {
-        $basic  = new \Vonage\Client\Credentials\Basic("8907d8da", "wurXL6eDUM5dJwld");
-        $client = new \Vonage\Client($basic);
-        $response = $client->sms()->send(
-            new \Vonage\SMS\Message\SMS($phone, 'testing', $otp)
-        );
-
-        $message = $response->current();
-
-        if ($message->getStatus() == 0) {
-            echo "The message was sent successfully\n";
-        } else {
-            echo "The message failed with status: " . $message->getStatus() . "\n";
-        }
+    function sms_send($phone, $otp) {
+        $url = "http://bulksmsbd.net/api/smsapi";
+        $api_key = "tqaynG0piLxtv6zgxbNI";
+        $senderid = "8809617617020";
+        $number = $phone;
+        $message = $otp;
+     
+        $data = [
+            "api_key" => $api_key,
+            "senderid" => $senderid,
+            "number" => $number,
+            "message" => $message
+        ];
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
     }
+
+
+
+
+
+
+    // public function sms($phone, $otp)
+    // {
+    //     $basic  = new \Vonage\Client\Credentials\Basic("8907d8da", "wurXL6eDUM5dJwld");
+    //     $client = new \Vonage\Client($basic);
+    //     $response = $client->sms()->send(
+    //         new \Vonage\SMS\Message\SMS($phone, 'testing', $otp)
+    //     );
+
+    //     $message = $response->current();
+
+    //     if ($message->getStatus() == 0) {
+    //         echo "The message was sent successfully\n";
+    //     } else {
+    //         echo "The message failed with status: " . $message->getStatus() . "\n";
+    //     }
+    // }
 }
