@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Models\UserOtp;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Http\Request;
 
@@ -48,31 +49,34 @@ class LeedController extends Controller
             $result = $user->save();
             if ($result) {
                 return response([
-                    'message' => 'Data is initially saved'
+                    'message' => 'Data is initially saved',
+                    'status' => '201'
                 ]);
-            }else{
+            } else {
                 return response([
-                    'message' => 'something went wrong'
+                    'message' => 'something went wrong',
+                    'status' => '401'
                 ]);
             }
         }
     }
-    public function studentReg(Request $req){
+    public function studentReg(Request $req)
+    {
         $data = new User();
-        $data ->email = $req->email;
-        $data->password = Hash::make($req->password);
+        $data->email = $req->email;
+        $data->name = $req->name;
+        $data->password = Hash::make($req->confirmPassword);
         $data->role = '2';
         $result = $data->save();
-        if($result){
+        if ($result) {
             return response([
-                'message'=> 'student successfully registered'
+                'message' => 'student successfully registered'
             ]);
-        }else{
+        } else {
             return response([
-                'message'=> 'something went wrong'
+                'message' => 'something went wrong'
             ]);
         }
-        
     }
     public function otpGenerate(Request $req)
     {
@@ -105,7 +109,7 @@ class LeedController extends Controller
     {
         $data = UserOtp::where('phoneNo', $req->phoneNo)->first();
         if ($data) {
-            if ($data->created_at > Carbon::now()->subMinutes(3)->toDateTimeString()) {
+            if ($data->created_at > Carbon::now()->subMinutes(40)->toDateTimeString()) {
                 if ($data->otp === $req->otp) {
                     return response([
                         'message' => 'otp verified successfully',
@@ -132,13 +136,14 @@ class LeedController extends Controller
             ]);
         }
     }
-    function sms_send($phone, $otp) {
+    function sms_send($phone, $otp)
+    {
         $url = "http://bulksmsbd.net/api/smsapi";
         $api_key = "tqaynG0piLxtv6zgxbNI";
         $senderid = "8809617617020";
         $number = $phone;
-        $message = $otp;
-     
+        $message = "Your consultant otp :$otp ";
+
         $data = [
             "api_key" => $api_key,
             "senderid" => $senderid,
@@ -177,4 +182,60 @@ class LeedController extends Controller
     //         echo "The message failed with status: " . $message->getStatus() . "\n";
     //     }
     // }
+    public function leedInfo()
+    {
+        $data = Leed::where('email', auth()->user()->email)->first();
+        if ($data->image != null) {
+
+            $path = asset('/image/upload/' . $data->image);
+        } else {
+            $path = 'empty';
+        }
+        // $path = public_path().'/image/upload/'.$fileName;
+        // $file = Response::download($path);
+        // $data->role = auth()->user()->role;
+        return response()->json([
+            'user' => $data,
+            'file' => $path
+        ]);
+    }
+    public function savePhoto(Request $req)
+    {
+        $user = Leed::where('email', auth()->user()->email)->first();
+        if ($file =$req->file('image')) {
+            $extension = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $extension;
+            $file->move('upload/image', $fileName);
+            $user->image = $fileName;
+           
+        } else {
+            unset($user['image']);
+        }
+        $result = $user->save();
+        // $image = $req->input('image'); // your base64 encoded
+        // $image = str_replace('data:image/png;base64,', '', $image);
+        // $image = str_replace(' ', '+', $image);
+        // $imageName = 'test.png';
+        // $extension = $image->getClientOriginalExtension();
+        // \File::put(storage_path() . '/' . $imageName, base64_decode($image));
+        // $imageData = base64_decode($req->image);
+        // $directory = 'upload/image';
+        // $fileName = uniqid() . '.jpg';
+        // Storage::put($directory . '/' . $fileName, $imageData);
+        // $user->image = $fileName;
+        // $result = $user->save();
+        if ($result) {
+            return response([
+
+                'message' => 'Image uploaded Successfully',
+                'status' => '201'
+            ]);
+        } else {
+            return response([
+
+                'message' => 'something went wrong',
+                'status' => '403'
+            ]);
+        }
+    }
 }

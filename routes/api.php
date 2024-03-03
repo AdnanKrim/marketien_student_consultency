@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LeedController;
+use App\Http\Controllers\DocController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,11 +22,14 @@ use Illuminate\Support\Facades\Route;
 // });
 Route::group(['middleware' => 'auth:sanctum'], function(){
     //All secure URL's
+Route::get('leed-info',[LeedController::class,'leedInfo'])->name('leed-info');
+Route::post('save-photo',[LeedController::class,'savePhoto'])->name('save-photo');
+Route::post('save-docs',[DocController::class,'docStore'])->name('save-docs');
 
     });
 
 
-Route::post("login",[UserController::class,'index']);
+Route::post('login',[UserController::class,'index']);
 Route::post('save-leed',[LeedController::class,'SaveLeed'])->name('save-leed');
 Route::post('student-reg',[LeedController::class,'studentReg'])->name('student-reg');
 Route::post('otp-generate',[LeedController::class,'otpGenerate'])->name('otp-generate');
