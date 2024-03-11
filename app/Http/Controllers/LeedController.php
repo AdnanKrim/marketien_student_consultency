@@ -187,7 +187,7 @@ class LeedController extends Controller
         $data = Leed::where('email', auth()->user()->email)->first();
         if ($data->image != null) {
 
-            $path = asset('/image/upload/' . $data->image);
+            $path = asset('/upload/image/' . $data->image);
         } else {
             $path = 'empty';
         }

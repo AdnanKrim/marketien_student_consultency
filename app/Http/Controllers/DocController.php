@@ -8,68 +8,68 @@ use App\Models\InfoFile;
 
 class DocController extends Controller
 {
-   //  public function docStore(Request $req){
-   //    info($req);
-   //   $data = new Document();
-   //   $data->leedId = auth()->user()->id;
-   //   $formData = json_decode($req->input('formData'), true);
-   //   $eduInfofiles = [];
-   //   if(isset($formData->eduInfo)){
+    public function docStore(Request $req){
+      info($req);
+     $data = new Document();
+     $data->leedId = auth()->user()->id;
+     $formData = json_decode($req->input('formData'), true);
+     $eduInfofiles = [];
+     if(isset($formData->eduInfo)){
 
-   //      foreach ($formData->eduInfo as $edu){
-   //         $eduFileC = $this->file($edu['certificates']);
+        foreach ($formData->eduInfo as $edu){
+           $eduFileC = $this->file($edu['certificates']);
 
-   //         $extensionC = $eduFileC->getClientOriginalExtension();
-   //         $eduFileNameC = time() . '.' . $extensionC;
-   //         $eduFileC->move('upload/pdf', $eduFileNameC);
+           $extensionC = $eduFileC->getClientOriginalExtension();
+           $eduFileNameC = time() . '.' . $extensionC;
+           $eduFileC->move('upload/pdf', $eduFileNameC);
 
-   //         $eduFileM = $this->file($edu['markSheet']);
+           $eduFileM = $this->file($edu['markSheet']);
 
-   //         $extensionM = $eduFileM->getClientOriginalExtension();
-   //         $eduFileNameM = time() . '.' . $extensionM;
-   //         $eduFileM->move('upload/pdf', $eduFileNameM);
-   //         $eduInfofiles[] =[
-   //             'degreeName' => $edu['degreeName'],
-   //             'institutionName' => $edu['institutionName'],
-   //             'certificates' => $eduFileNameC,
-   //             'markSheet' => $eduFileNameM,
-   //         ];
+           $extensionM = $eduFileM->getClientOriginalExtension();
+           $eduFileNameM = time() . '.' . $extensionM;
+           $eduFileM->move('upload/pdf', $eduFileNameM);
+           $eduInfofiles[] =[
+               'degreeName' => $edu['degreeName'],
+               'institutionName' => $edu['institutionName'],
+               'certificates' => $eduFileNameC,
+               'markSheet' => $eduFileNameM,
+           ];
 
-   //      }
-   //   }
+        }
+     }
 
-   //   $docInfoFiles=[];
-   //   if(isset($formData->docInfo)){
+     $docInfoFiles=[];
+     if(isset($formData->docInfo)){
 
-   //      foreach($formData->docInfo as $doc){
-   //         $docFile = $this->file($doc['file']);
+        foreach($formData->docInfo as $doc){
+           $docFile = $this->file($doc['file']);
 
-   //         $extensionD = $docFile->getClientOriginalExtension();
-   //         $docFileName = time() . '.' . $extensionD;
-   //         $docFile->move('upload/pdf', $docFileName);
+           $extensionD = $docFile->getClientOriginalExtension();
+           $docFileName = time() . '.' . $extensionD;
+           $docFile->move('upload/pdf', $docFileName);
 
-   //         $docInfoFiles[]=[
-   //             'documentName' => $doc['documentName'],
-   //             'file' => $docFileName,
-   //         ];
-   //      }
-   //   }
+           $docInfoFiles[]=[
+               'documentName' => $doc['documentName'],
+               'file' => $docFileName,
+           ];
+        }
+     }
 
-   //   $data->eduInfo = json_encode($eduInfofiles);
-   //   $data->docInfo = json_encode($docInfoFiles);
-   //   $result =$data->save();
-   //   if($result){
-   //      return response([
-   //         'message'=>'documents saved successfully',
-   //         'status'=>'201'
-   //      ]);
-   //   }else{
-   //      return response([
-   //          'message'=>'something went wrong',
-   //          'status'=>'403'
-   //       ]);
-   //  }
-   //  }
+     $data->eduInfo = json_encode($eduInfofiles);
+     $data->docInfo = json_encode($docInfoFiles);
+     $result =$data->save();
+     if($result){
+        return response([
+           'message'=>'documents saved successfully',
+           'status'=>'201'
+        ]);
+     }else{
+        return response([
+            'message'=>'something went wrong',
+            'status'=>'403'
+         ]);
+    }
+    }
     function fileSave($file,$name)
    {
       $extension = $file->getClientOriginalExtension();
@@ -77,45 +77,47 @@ class DocController extends Controller
       $file->move('upload/pdf', $fileName);
       return $fileName;
    }
-   public function docStore(Request $req)
-   {
+   // public function docStore(Request $req)
+   // {
 
-      $data = new InfoFile();
-      $data->leedId = auth()->user()->id;
-      $data->documentType = $req->documentType;
-      $data->documentName = $req->documentName;
-      if($req->has('institutionName')){
-         $data->institutionName = $req->institutionName;
-      }else{
-         unset($data['institutionName']);
-      }
-      if($docC = $req->file('certificates')){
-         $data->certificates = $this->fileSave($docC,'CERT');
-      }else{
-         unset($data['certificates']);
-      }
-      if($docM = $req->file('markSheet')){
-         $data->markSheet = $this->fileSave($docM, 'MARK');
-      }else{
-         unset($data['markSheet']);
-      }
-      if($docD = $req->file('docFile')){
-         $data->docFile = $this->fileSave($docD, 'DOC');
-      }else{
-         unset($data['docFile']);
-      }
-      $result = $data->save();
-      if($result){
-              return response([
-                 'message'=>'documents saved successfully',
-                 'status'=>'201'
-              ]);
-           }else{
-              return response([
-                  'message'=>'something went wrong',
-                  'status'=>'403'
-               ]);
-          }
+   //    $data = new InfoFile();
+   //    $data->leedId = auth()->user()->id;
+   //    // $data->documentType = $req->documentType;
+   //    $data->documentName = $req->documentName;
+   //    if($req->has('institutionName')){
+   //       $data->institutionName = $req->institutionName;
+   //       $data->documentType = 'eduInfo';
+   //    }else{
+   //       unset($data['institutionName']);
+   //       $data->documentType = 'docInfo';
+   //    }
+   //    if($docC = $req->file('certificates')){
+   //       $data->certificates = $this->fileSave($docC,'CERT');
+   //    }else{
+   //       unset($data['certificates']);
+   //    }
+   //    if($docM = $req->file('markSheet')){
+   //       $data->markSheet = $this->fileSave($docM, 'MARK');
+   //    }else{
+   //       unset($data['markSheet']);
+   //    }
+   //    if($docD = $req->file('docFile')){
+   //       $data->docFile = $this->fileSave($docD, 'DOC');
+   //    }else{
+   //       unset($data['docFile']);
+   //    }
+   //    $result = $data->save();
+   //    if($result){
+   //            return response([
+   //               'message'=>'documents saved successfully',
+   //               'status'=>'201'
+   //            ]);
+   //         }else{
+   //            return response([
+   //                'message'=>'something went wrong',
+   //                'status'=>'403'
+   //             ]);
+   //        }
       
-   }
+   // }
 }
