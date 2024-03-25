@@ -17,4 +17,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/sms',[LeedController::class, 'sms']);
+// Route::get('/sms',[LeedController::class, 'sms']);
+Route::get('/contract-form',[LeedController::class,'contractForm']);

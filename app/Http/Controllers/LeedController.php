@@ -238,4 +238,26 @@ class LeedController extends Controller
             ]);
         }
     }
+    public function contractForm(){
+      return view('contractForm');
+    }
+    //admin leed section
+    public function leedList(){
+    $data = Leed::where('consultStatus','=','active')->get();
+    return response([
+         'leeds'=> $data
+    ]);
+    }
+    public function subLeedList(){
+        $data = Leed::where('consultStatus','=',null)->get();
+        return response([
+             'subLeeds'=> $data
+        ]); 
+    }
+    public function contractList(){
+        $data = Leed::where('contractStatus','=','active')->get();
+        return response([
+             'contracts'=> $data
+        ]); 
+    }
 }
