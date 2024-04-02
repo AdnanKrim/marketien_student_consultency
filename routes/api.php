@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LeedController;
 use App\Http\Controllers\DocController;
+use App\Http\Controllers\ContractController;
+use App\Models\Contract;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,6 +24,9 @@ use Illuminate\Support\Facades\Route;
 // });
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::group(['middleware' => 'adminApi'], function () {
+        Route::delete('/leed-delete/{id}', [LeedController::class, 'leedDelete'])->name('leed-delete');
+        Route::get('/leed-edit-form/{id}', [LeedController::class, 'editFormLeed'])->name('leed-edit-form');
+        Route::get('leed-admin-info/{id}', [LeedController::class, 'leedAdminInfo'])->name('leed-admin-info');
     });
 
     Route::group(['middleware' => 'leedApi'], function () {
@@ -30,6 +35,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('save-docs', [DocController::class, 'docStore'])->name('save-docs');
         Route::get('edu-info', [DocController::class, 'eduInfo'])->name('edu-info');
         Route::get('doc-info', [DocController::class, 'docInfo'])->name('doc-info');
+        Route::post('create-contract', [ContractController::class, 'createContract'])->name('create-contract');
+        
     });
 });
 

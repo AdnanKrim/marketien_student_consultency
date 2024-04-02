@@ -16,7 +16,7 @@ class AdminApi
      */
     public function handle(Request $request, Closure $next)
     {
-        if(auth()->user()->role != 1){
+        if(auth()->user()->role != "1"){
             return response([
               'message'=> 'you are not eligible for this page', 
               'status'=> '401'

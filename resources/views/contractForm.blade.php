@@ -78,17 +78,16 @@
 {{-- submit button ------------------------------  --}}
 <div class="submitDiv mb-[50px]">
     <Link to="/confirmContractPage">
-
-    <button onClick={handleSubmit} class="submit">
+        <a href="/generate-pdf">
+        <button  class="submit">
         Submit
     </button>
+</a>
     </Link>
 </div>
 {{-- submit button ------------------------------ --}}
 {{-- css section --}}
- parentDiv  {
-    bord
- }
+ 
 
 <style>
     @media (min-width: 960px) {

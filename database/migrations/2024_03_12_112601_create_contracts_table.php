@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->integer('leedId')->nullable();
             $table->text('contractPaper')->nullable();
+            $table->text('paymentSlip')->nullable();
             $table->string('contractCode')->nullable();
             $table->string('approvalStatus')->nullable();
             $table->string('endDate')->nullable();

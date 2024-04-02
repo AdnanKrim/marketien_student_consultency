@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Leed;
 use App\Models\User;
+use App\Models\InfoFile;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Models\UserOtp;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Http\Request;
@@ -202,12 +204,11 @@ class LeedController extends Controller
     public function savePhoto(Request $req)
     {
         $user = Leed::where('email', auth()->user()->email)->first();
-        if ($file =$req->file('image')) {
+        if ($file = $req->file('image')) {
             $extension = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $extension;
             $file->move('upload/image', $fileName);
             $user->image = $fileName;
-           
         } else {
             unset($user['image']);
         }
@@ -238,26 +239,112 @@ class LeedController extends Controller
             ]);
         }
     }
-    public function contractForm(){
-      return view('contractForm');
+    public function contractForm()
+    {
+        return view('contractForm');
     }
+    public function generatePdf()
+    {
+        $pdf = Pdf::loadView('contractForm');
+    return $pdf->download('invoice.pdf');
+    }
+
     //admin leed section
-    public function leedList(){
-    $data = Leed::where('consultStatus','=','active')->get();
-    return response([
-         'leeds'=> $data
-    ]);
-    }
-    public function subLeedList(){
-        $data = Leed::where('consultStatus','=',null)->get();
+
+    public function leedList()
+    {
+        $data = Leed::where('consultStatus', '=', 'active')->get();
         return response([
-             'subLeeds'=> $data
-        ]); 
+            'leeds' => $data
+        ]);
     }
-    public function contractList(){
-        $data = Leed::where('contractStatus','=','active')->get();
+    public function subLeedList()
+    {
+        $data = Leed::where('consultStatus', '=', null)->get();
         return response([
-             'contracts'=> $data
-        ]); 
+            'subLeeds' => $data
+        ]);
+    }
+    public function contractList()
+    {
+        $data = Leed::where('contractStatus', '=', 'active')->get();
+        return response([
+            'contracts' => $data
+        ]);
+    }
+    public function leedAdminInfo($id)
+    {   
+        $data = Leed::find($id);
+        $user = User::where('email',$data->email)->first();
+        $edu = InfoFile::where('leedId',$user->id)->where('documentType','=','eduInfo')->get();
+        $doc = InfoFile::where('leedId',$user->id)->where('documentType','=','docInfo')->get();
+        if ($data->image != null) {
+
+            $path = asset('/upload/image/' . $data->image);
+        } else {
+            $path = 'empty';
+        }
+        
+        return response()->json([
+            'user' => $data,
+            'file' => $path,
+            'doc' => $doc,
+            'edu' =>$edu
+        ]);
+    }
+    
+
+    public function leedDelete($id){
+        $data = Leed::find($id);
+        if(!$data){
+            return response([
+                "message"=>'Food Item doesnt exist',
+                "status"=> 202
+            ]);
+        }else{
+            $data->delete();
+            return response([
+                "message"=>'leed deleted successfuly',
+                "status"=> 201
+            ]);
+        }
+    }
+    public function editFormLeed($id){
+          $data = Leed::find($id);
+          unset($data['email']);
+          return response([
+            "leedData" => $data
+          ]);
+    }
+    public function leedEdit(Request $req){
+     $data = Leed::find($req->id);
+     $data->name = $req->name;
+     $data->fatherName = $req->fatherName;
+     $data->motherName = $req->motherName;
+     $date = strtotime($req->birthDate);
+     $formatDate = date('Y-m-d', $date);
+     $data->birthDate = $formatDate;
+     $data->phoneNo = $req->phoneNo;
+     if ($file = $req->file('image')) {
+         $extension = $file->getClientOriginalExtension();
+         $fileName = time() . '.' . $extension;
+         $file->move('upload/image', $fileName);
+         $data->image = $fileName;
+     } else {
+         unset($data['image']);
+     }
+     $result = $data->save();
+     if($result){
+        return response([
+          'message'=>'Leed Updated Sucessfully',
+          'status'=>'201'
+        ]);
+    }
+    else{
+        return response([
+            'message'=>'failed, Something Went Wrong',
+            'status'=>'202'
+          ]);
+    }
     }
 }

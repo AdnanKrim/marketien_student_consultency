@@ -16,7 +16,7 @@ class LeedApi
      */
     public function handle(Request $request, Closure $next)
     {
-        if(auth()->user()->role != 2){
+        if(auth()->user()->role != "2"){
             return response([
               'message'=> 'you are not eligible for this page', 
               'status'=> '401'

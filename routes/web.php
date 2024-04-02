@@ -19,3 +19,5 @@ Route::get('/', function () {
 });
 // Route::get('/sms',[LeedController::class, 'sms']);
 Route::get('/contract-form',[LeedController::class,'contractForm']);
+Route::get('/generate-pdf',[LeedController::class,'generatePdf']);
+

@@ -71,7 +71,7 @@ class DocController extends Controller
    //       ]);
    //  }
    //  }
-    function fileSave($file,$name)
+   public function fileSave($file,$name)
    {
       $extension = $file->getClientOriginalExtension();
       $fileName =$name. time() . '.' . $extension;
